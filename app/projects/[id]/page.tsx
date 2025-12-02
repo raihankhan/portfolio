@@ -3,6 +3,12 @@ import { notFound } from "next/navigation"
 import { projects } from "@/lib/data"
 import { ProjectPageClient } from "./project-page-client"
 
+export async function generateStaticParams() {
+  return projects.map((project) => ({
+    id: project.id,
+  }))
+}
+
 type Props = {
   params: Promise<{ id: string }>
 }
