@@ -1,4 +1,4 @@
-export type ThemeName = "aura-blue" | "electric-purple" | "emerald-green" | "solar-orange"
+export type ThemeName = "aura-blue" | "electric-purple" | "emerald-green" | "solar-orange" | "mossy-hollow"
 
 export interface Theme {
   name: ThemeName
@@ -75,6 +75,21 @@ export const themes: Record<ThemeName, Theme> = {
       gradient1: "#f97316",
       gradient2: "#ef4444",
       gradient3: "#eab308",
+    },
+  },
+  "mossy-hollow": {
+    name: "mossy-hollow",
+    label: "Mossy Hollow",
+    colors: {
+      primary: "oklch(0.75 0.10 100)",
+      primaryHue: 100,
+      secondary: "oklch(0.65 0.12 120)",
+      secondaryHue: 120,
+      accent: "oklch(0.70 0.15 80)",
+      accentHue: 80,
+      gradient1: "#bac095",
+      gradient2: "#8a9a5b",
+      gradient3: "#556b2f",
     },
   },
 }

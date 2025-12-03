@@ -4,6 +4,8 @@ import { motion } from "framer-motion"
 import Link from "next/link"
 import { AnimatedBackground } from "@/components/animated-background"
 import { Dock } from "@/components/dock/dock"
+import { DevOpsStatus } from "@/components/devops-status"
+import { BugWalk } from "@/components/bug-walk"
 import { ArrowRight, Terminal, Cloud, GitBranch, Server } from "lucide-react"
 
 const skills = [
@@ -48,19 +50,16 @@ export default function HomePage() {
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 0.2 }}
-                className="inline-flex items-center gap-2 rounded-full glass px-4 py-2 text-sm w-fit"
               >
-                <span className="relative flex h-2 w-2">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-75"></span>
-                  <span className="relative inline-flex h-2 w-2 rounded-full bg-accent"></span>
-                </span>
-                <span className="text-muted-foreground">Available for new opportunities</span>
+                <DevOpsStatus />
               </motion.div>
 
               <h1 className="text-4xl font-bold tracking-tight text-foreground md:text-6xl lg:text-7xl">
                 <span className="block">Raihan Khan</span>
                 <span className="block mt-2 gradient-text">Senior DevOps Engineer</span>
               </h1>
+
+              <BugWalk />
 
               <p className="max-w-2xl text-lg text-muted-foreground md:text-xl leading-relaxed">
                 I build reliable, scalable cloud infrastructure and developer platforms. Specializing in Kubernetes,

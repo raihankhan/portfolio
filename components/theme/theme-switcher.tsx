@@ -47,6 +47,7 @@ export function ThemeSwitcher() {
       "electric-purple": "#a855f7",
       "emerald-green": "#10b981",
       "solar-orange": "#f97316",
+      "mossy-hollow": "#bac095",
     }
     return colors[themeName]
   }
