@@ -46,6 +46,30 @@ export interface Experience {
   technologies: string[]
 }
 
+export interface FeedPost {
+  id: string
+  content: string
+  timestamp: string
+  media?: {
+    type: "iframe"
+    src: string
+    aspectRatio?: string
+  }
+}
+
+export const feedPosts: FeedPost[] = [
+  {
+    id: "platform-engineering-golang-webinar",
+    content: "Just wrapped up a webinar on Platform Engineering with Golang! We explored how Go's currency model and performance make it an ideal choice for building robust platform tools. Check out the slides below for a deep dive into the architecture and code examples.",
+    timestamp: "2025-12-29T10:00:00Z", // Using current date as placeholder
+    media: {
+      type: "iframe",
+      src: "https://app.presentations.ai/view/BYSzxx2aRK",
+      aspectRatio: "aspect-[4/3]",
+    },
+  },
+]
+
 export const projects: Project[] = [
   {
     id: "kubernetes-platform",

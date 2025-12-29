@@ -1,28 +1,40 @@
 "use client"
 
 import { useCallback, useEffect, useRef, useState } from "react"
-import { motion } from "framer-motion"
+import { motion, AnimatePresence } from "framer-motion"
 import { ScoreBoard, BackToArcadeButton, GameOverOverlay } from "@/components/game-console/game-ui"
 
 type Direction = "UP" | "DOWN" | "LEFT" | "RIGHT"
 type Position = { x: number; y: number }
+type Food = Position & { char: string; id: number }
 
-const GRID_SIZE = 20
 const CELL_SIZE = 20
 const INITIAL_SPEED = 150
+const VOWELS = ["A", "E", "I", "O", "U"]
+const ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+
+const BOARD_SIZES = [
+  { label: "Small", value: 15 },
+  { label: "Medium", value: 20 },
+  { label: "Large", value: 25 },
+]
 
 export default function SnakePage() {
+  const [gridSize, setGridSize] = useState(20)
   const [snake, setSnake] = useState<Position[]>([{ x: 10, y: 10 }])
-  const [food, setFood] = useState<Position>({ x: 15, y: 10 })
+  const [snakeChars, setSnakeChars] = useState<string[]>([])
+  const [food, setFood] = useState<Food>({ x: 15, y: 10, char: "A", id: 0 })
   const [direction, setDirection] = useState<Direction>("RIGHT")
   const [gameOver, setGameOver] = useState(false)
   const [score, setScore] = useState(0)
   const [highScore, setHighScore] = useState(0)
   const [isPaused, setIsPaused] = useState(false)
   const [gameStarted, setGameStarted] = useState(false)
+  const [speed, setSpeed] = useState(INITIAL_SPEED)
 
   const directionRef = useRef(direction)
   const gameLoopRef = useRef<NodeJS.Timeout | null>(null)
+  const foodTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   // Load high score from localStorage
   useEffect(() => {
@@ -30,17 +42,37 @@ export default function SnakePage() {
     if (saved) setHighScore(Number.parseInt(saved))
   }, [])
 
-  // Generate random food position
-  const generateFood = useCallback((currentSnake: Position[]): Position => {
-    let newFood: Position
+  // Generate random food
+  const generateFood = useCallback((currentSnake: Position[], currentGridSize: number): Food => {
+    let newPos: Position
     do {
-      newFood = {
-        x: Math.floor(Math.random() * GRID_SIZE),
-        y: Math.floor(Math.random() * GRID_SIZE),
+      newPos = {
+        x: Math.floor(Math.random() * currentGridSize),
+        y: Math.floor(Math.random() * currentGridSize),
       }
-    } while (currentSnake.some((segment) => segment.x === newFood.x && segment.y === newFood.y))
-    return newFood
+    } while (currentSnake.some((segment) => segment.x === newPos.x && segment.y === newPos.y))
+
+    return {
+      ...newPos,
+      char: ALPHABET[Math.floor(Math.random() * ALPHABET.length)],
+      id: Date.now(),
+    }
   }, [])
+
+  // Food expiration timer
+  useEffect(() => {
+    if (!gameStarted || gameOver || isPaused) return
+
+    if (foodTimeoutRef.current) clearTimeout(foodTimeoutRef.current)
+
+    foodTimeoutRef.current = setTimeout(() => {
+      setFood(generateFood(snake, gridSize))
+    }, 5000)
+
+    return () => {
+      if (foodTimeoutRef.current) clearTimeout(foodTimeoutRef.current)
+    }
+  }, [food.id, gameStarted, gameOver, isPaused, snake, gridSize, generateFood])
 
   // Game loop
   const gameLoop = useCallback(() => {
@@ -66,13 +98,13 @@ export default function SnakePage() {
       }
 
       // Check wall collision
-      if (head.x < 0 || head.x >= GRID_SIZE || head.y < 0 || head.y >= GRID_SIZE) {
+      if (head.x < 0 || head.x >= gridSize || head.y < 0 || head.y >= gridSize) {
         setGameOver(true)
         return prevSnake
       }
 
-      // Check self collision
-      if (prevSnake.some((segment) => segment.x === head.x && segment.y === head.y)) {
+      // Check self collision (only if length > 1)
+      if (prevSnake.length > 1 && prevSnake.some((segment) => segment.x === head.x && segment.y === head.y)) {
         setGameOver(true)
         return prevSnake
       }
@@ -89,33 +121,38 @@ export default function SnakePage() {
           }
           return newScore
         })
-        setFood(generateFood(newSnake))
+
+        setSnakeChars(prev => [...prev, food.char])
+
+        if (VOWELS.includes(food.char)) {
+          setSpeed(prev => Math.max(50, prev - 10))
+        }
+
+        setFood(generateFood(newSnake, gridSize))
       } else {
         newSnake.pop()
       }
 
       return newSnake
     })
-  }, [food, gameOver, isPaused, generateFood, highScore])
+  }, [food, gameOver, isPaused, generateFood, gridSize, highScore])
 
   // Start game loop
   useEffect(() => {
     if (gameStarted && !gameOver && !isPaused) {
-      gameLoopRef.current = setInterval(gameLoop, INITIAL_SPEED)
+      if (gameLoopRef.current) clearInterval(gameLoopRef.current)
+      gameLoopRef.current = setInterval(gameLoop, speed)
     }
 
     return () => {
       if (gameLoopRef.current) clearInterval(gameLoopRef.current)
     }
-  }, [gameLoop, gameStarted, gameOver, isPaused])
+  }, [gameLoop, gameStarted, gameOver, isPaused, speed])
 
   // Handle keyboard input
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (!gameStarted) {
-        setGameStarted(true)
-        return
-      }
+      if (!gameStarted) return
 
       if (e.key === " " || e.key === "Escape") {
         setIsPaused((prev) => !prev)
@@ -140,7 +177,6 @@ export default function SnakePage() {
       const newDirection = keyDirections[e.key]
       if (!newDirection) return
 
-      // Prevent 180-degree turns
       const opposites: Record<Direction, Direction> = {
         UP: "DOWN",
         DOWN: "UP",
@@ -158,79 +194,94 @@ export default function SnakePage() {
     return () => window.removeEventListener("keydown", handleKeyDown)
   }, [gameStarted])
 
-  const restartGame = () => {
-    setSnake([{ x: 10, y: 10 }])
-    setFood({ x: 15, y: 10 })
+  const startGame = (size: number) => {
+    setGridSize(size)
+    const centerX = Math.floor(size / 2)
+    const centerY = Math.floor(size / 2)
+    setSnake([{ x: centerX, y: centerY }])
+    setSnakeChars([])
+    setFood({ x: centerX + 5, y: centerY, char: "A", id: Date.now() })
     setDirection("RIGHT")
     directionRef.current = "RIGHT"
     setGameOver(false)
     setScore(0)
     setIsPaused(false)
     setGameStarted(true)
+    setSpeed(INITIAL_SPEED)
+  }
+
+  const restartGame = () => {
+    startGame(gridSize)
   }
 
   return (
     <div className="relative min-h-screen px-6 py-24">
       <div className="mx-auto max-w-2xl">
-        {/* Header */}
         <div className="mb-8 flex items-center justify-between">
           <BackToArcadeButton />
           <ScoreBoard score={score} highScore={highScore} />
         </div>
 
-        {/* Game Container */}
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="relative mx-auto overflow-hidden rounded-2xl border border-border/50 bg-card/40 p-4 backdrop-blur-xl"
-          style={{ width: GRID_SIZE * CELL_SIZE + 32, height: GRID_SIZE * CELL_SIZE + 32 }}
+          className="relative mx-auto overflow-hidden rounded-2xl border border-primary/50 bg-primary/5 p-4 backdrop-blur-xl"
+          style={{ width: gridSize * CELL_SIZE + 32, height: gridSize * CELL_SIZE + 32 }}
         >
-          {/* Grid */}
           <div
-            className="relative rounded-lg bg-background/50"
+            className="relative bg-background/50"
             style={{
-              width: GRID_SIZE * CELL_SIZE,
-              height: GRID_SIZE * CELL_SIZE,
+              width: gridSize * CELL_SIZE,
+              height: gridSize * CELL_SIZE,
               display: "grid",
-              gridTemplateColumns: `repeat(${GRID_SIZE}, ${CELL_SIZE}px)`,
-              gridTemplateRows: `repeat(${GRID_SIZE}, ${CELL_SIZE}px)`,
+              gridTemplateColumns: `repeat(${gridSize}, ${CELL_SIZE}px)`,
+              gridTemplateRows: `repeat(${gridSize}, ${CELL_SIZE}px)`,
             }}
           >
             {/* Grid lines */}
-            {Array.from({ length: GRID_SIZE * GRID_SIZE }).map((_, i) => (
+            {Array.from({ length: gridSize * gridSize }).map((_, i) => (
               <div key={i} className="border border-border/10" />
             ))}
 
             {/* Snake */}
-            {snake.map((segment, index) => (
-              <motion.div
-                key={`${segment.x}-${segment.y}-${index}`}
-                className="absolute rounded-sm"
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                style={{
-                  width: CELL_SIZE - 2,
-                  height: CELL_SIZE - 2,
-                  left: segment.x * CELL_SIZE + 1,
-                  top: segment.y * CELL_SIZE + 1,
-                  backgroundColor: index === 0 ? "var(--primary)" : "var(--primary)",
-                  opacity: index === 0 ? 1 : 0.7 - index * 0.02,
-                }}
-              />
-            ))}
+            {snake.map((segment, index) => {
+              const isHead = index === 0
+              const char = !isHead ? snakeChars[index - 1] : null
+
+              return (
+                <div
+                  key={index} // Stable key to prevent flicker
+                  className={`absolute flex items-center justify-center text-[10px] font-bold text-primary-foreground ${isHead ? "z-10" : "z-0"}`}
+                  style={{
+                    width: CELL_SIZE,
+                    height: CELL_SIZE,
+                    left: segment.x * CELL_SIZE,
+                    top: segment.y * CELL_SIZE,
+                    backgroundColor: "var(--primary)",
+                    boxShadow: "0 0 10px 1px var(--primary)", // Stable Aura effect
+                  }}
+                >
+                  {char}
+                </div>
+              )
+            })}
 
             {/* Food */}
             <motion.div
-              className="absolute rounded-full bg-destructive"
-              animate={{ scale: [1, 1.2, 1] }}
-              transition={{ duration: 0.5, repeat: Number.POSITIVE_INFINITY }}
+              key={food.id}
+              className="absolute flex items-center justify-center bg-accent text-accent-foreground text-xs font-bold shadow-[0_0_10px_rgba(255,255,255,0.5)]"
+              initial={{ scale: 0, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
               style={{
-                width: CELL_SIZE - 4,
-                height: CELL_SIZE - 4,
-                left: food.x * CELL_SIZE + 2,
-                top: food.y * CELL_SIZE + 2,
+                width: CELL_SIZE - 2,
+                height: CELL_SIZE - 2,
+                left: food.x * CELL_SIZE + 1,
+                top: food.y * CELL_SIZE + 1,
+                borderRadius: "2px",
               }}
-            />
+            >
+              {food.char}
+            </motion.div>
           </div>
 
           {/* Start Screen */}
@@ -240,10 +291,24 @@ export default function SnakePage() {
               animate={{ opacity: 1 }}
               className="absolute inset-0 z-20 flex items-center justify-center bg-background/80 backdrop-blur-sm"
             >
-              <div className="text-center">
-                <h2 className="mb-4 text-2xl font-bold text-foreground">Snake</h2>
-                <p className="mb-6 text-sm text-muted-foreground">Press any key to start</p>
-                <p className="text-xs text-muted-foreground">Use Arrow keys or WASD to move</p>
+              <div className="text-center p-6">
+                <h2 className="mb-4 text-2xl font-bold text-foreground">Letter Snake</h2>
+                <p className="mb-6 text-sm text-muted-foreground">Select Board Size to Start</p>
+                <div className="grid grid-cols-3 gap-2 mb-6">
+                  {BOARD_SIZES.map((size) => (
+                    <button
+                      key={size.value}
+                      onClick={() => startGame(size.value)}
+                      className="rounded-lg border border-border/50 bg-card/60 px-3 py-2 text-xs font-medium hover:bg-primary hover:text-primary-foreground transition-all"
+                    >
+                      {size.label}
+                    </button>
+                  ))}
+                </div>
+                <div className="space-y-2 text-[10px] text-muted-foreground opacity-80">
+                  <p>Collect letters before they disappear (5s)!</p>
+                  <p>Eat Vowels <span className="text-primary font-bold">(A, E, I, O, U)</span> for SPEED BOOST</p>
+                </div>
               </div>
             </motion.div>
           )}
@@ -266,7 +331,6 @@ export default function SnakePage() {
           {gameOver && <GameOverOverlay score={score} highScore={highScore} onRestart={restartGame} />}
         </motion.div>
 
-        {/* Controls hint */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}

@@ -6,7 +6,7 @@ import { motion, useMotionValue, useSpring, useTransform } from "framer-motion"
 import { useRef } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Home, FolderKanban, FileText, BookOpen, Briefcase, Mail, Github, Linkedin, Twitter } from "lucide-react"
+import { Home, FolderKanban, FileText, BookOpen, Briefcase, Mail, Github, Linkedin, Twitter, Rss } from "lucide-react"
 
 interface DockItemProps {
   icon: React.ReactNode
@@ -32,9 +32,8 @@ function DockItem({ icon, label, href, isExternal, mouseX, isActive }: DockItemP
     <motion.div
       ref={ref}
       style={{ width }}
-      className={`group relative flex aspect-square items-center justify-center rounded-xl glass glass-hover transition-colors ${
-        isActive ? "bg-primary/20 border-primary/50" : ""
-      }`}
+      className={`group relative flex aspect-square items-center justify-center rounded-xl glass glass-hover transition-colors ${isActive ? "bg-primary/20 border-primary/50" : ""
+        }`}
     >
       <div className="text-muted-foreground group-hover:text-foreground transition-colors">{icon}</div>
       <span className="absolute -top-10 left-1/2 -translate-x-1/2 rounded-md bg-muted px-2 py-1 text-xs font-medium text-foreground opacity-0 shadow-lg transition-opacity group-hover:opacity-100 whitespace-nowrap">
@@ -65,6 +64,7 @@ export function Dock() {
   const navItems = [
     { icon: <Home className="h-6 w-6" />, label: "Home", href: "/" },
     { icon: <FolderKanban className="h-6 w-6" />, label: "Projects", href: "/projects" },
+    { icon: <Rss className="h-6 w-6" />, label: "Feed", href: "/feed" },
     { icon: <FileText className="h-6 w-6" />, label: "Blog", href: "/blog" },
     { icon: <BookOpen className="h-6 w-6" />, label: "Notes", href: "/notes" },
     { icon: <Briefcase className="h-6 w-6" />, label: "Experience", href: "/experience" },

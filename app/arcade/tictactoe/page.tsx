@@ -168,9 +168,8 @@ export default function TicTacToePage() {
           <BackToArcadeButton />
           <motion.button
             onClick={() => setIsAIEnabled(!isAIEnabled)}
-            className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
-              isAIEnabled ? "bg-primary/20 text-primary" : "bg-muted text-muted-foreground"
-            }`}
+            className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${isAIEnabled ? "bg-primary/20 text-primary" : "bg-muted text-muted-foreground"
+              }`}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
@@ -217,18 +216,17 @@ export default function TicTacToePage() {
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="relative mx-auto mb-8 grid w-fit grid-cols-3 gap-3 rounded-2xl border border-border/50 bg-card/40 p-4 backdrop-blur-xl"
+          className="relative mx-auto mb-8 grid w-fit grid-cols-3 gap-3 rounded-2xl border border-primary/50 bg-primary/5 p-4 backdrop-blur-xl"
         >
           {board.map((cell, index) => (
             <motion.button
               key={index}
               onClick={() => handleClick(index)}
               disabled={!!cell || !!winner || isDraw || (isAIEnabled && !isXNext)}
-              className={`relative flex h-24 w-24 items-center justify-center rounded-xl border transition-colors ${
-                winningLine?.includes(index)
+              className={`relative flex h-24 w-24 items-center justify-center rounded-xl border transition-colors ${winningLine?.includes(index)
                   ? "border-primary bg-primary/20"
-                  : "border-border/50 bg-card/60 hover:bg-card"
-              } ${!cell && !winner && !isDraw && (isXNext || !isAIEnabled) ? "cursor-pointer" : "cursor-default"}`}
+                  : "border-primary/20 bg-card/60 hover:bg-primary/10 hover:border-primary/40"
+                } ${!cell && !winner && !isDraw && (isXNext || !isAIEnabled) ? "cursor-pointer" : "cursor-default"}`}
               whileHover={!cell && !winner && !isDraw ? { scale: 1.05 } : {}}
               whileTap={!cell && !winner && !isDraw ? { scale: 0.95 } : {}}
             >
