@@ -48,8 +48,9 @@ export function BugWalk() {
         return <div ref={containerRef} className="relative h-10 w-full" />
     }
 
-    // Calculate the end position (container width minus bug width)
-    const endPosition = containerWidth - bugWidth
+    // Limit the walk range to 60% of current container width to "reduce distance" as requested
+    const walkRange = containerWidth * 0.6
+    const endPosition = walkRange - bugWidth
 
     return (
         <div ref={containerRef} className="relative h-10 w-full overflow-hidden">
@@ -77,9 +78,10 @@ export function BugWalk() {
                             : [0, 15, 0, -15, 0, 30, 0, -30, 0], // Wobble pattern for left
                     }}
                     transition={{
-                        duration: 6,
+                        duration: 1, // Shorter duration for faster wobble
                         ease: "linear",
-                        times: [0, 0.125, 0.25, 0.375, 0.5, 0.625, 0.75, 0.875, 1], // Evenly spaced keyframes
+                        repeat: Infinity, // Ensure it keeps wobbling
+                        times: [0, 0.125, 0.25, 0.375, 0.5, 0.625, 0.75, 0.875, 1],
                     }}
                 >
                     <Image

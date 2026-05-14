@@ -6,7 +6,12 @@ import { AnimatedBackground } from "@/components/animated-background"
 import { Dock } from "@/components/dock/dock"
 import { DevOpsStatus } from "@/components/devops-status"
 import { BugWalk } from "@/components/bug-walk"
+import dynamic from "next/dynamic"
 import { ArrowRight, Terminal, Cloud, GitBranch, Server } from "lucide-react"
+
+const SplineRobot = dynamic(() => import("@/components/spline-robot").then((mod) => mod.SplineRobot), {
+  ssr: false,
+})
 
 const skills = [
   { icon: <Cloud className="h-5 w-5" />, name: "Cloud Infrastructure", description: "AWS, GCP, Azure" },
@@ -38,48 +43,53 @@ export default function HomePage() {
 
       <main className="min-h-screen px-6 pb-32 pt-20 md:px-12 lg:px-24">
         <div className="mx-auto max-w-5xl">
-          {/* Hero Section */}
           <motion.section
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="py-12 md:py-24"
+            className="py-12 md:py-20"
           >
-            <div className="flex flex-col gap-6">
-              <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.2 }}
-              >
-                <DevOpsStatus />
-              </motion.div>
-
-              <h1 className="text-4xl font-bold tracking-tight text-foreground md:text-6xl lg:text-7xl">
-                <span className="block">Raihan Khan</span>
-                <span className="block mt-2 gradient-text">Senior DevOps Engineer</span>
-              </h1>
-
-              <BugWalk />
-
-              <p className="max-w-2xl text-lg text-muted-foreground md:text-xl leading-relaxed">
-                I build reliable, scalable cloud infrastructure and developer platforms. Specializing in Kubernetes,
-                CI/CD automation, and infrastructure as code to help teams ship faster and safer.
-              </p>
-
-              <div className="flex flex-wrap gap-4 mt-4">
-                <Link
-                  href="/projects"
-                  className="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-3 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+              <div className="flex flex-col gap-6">
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.2 }}
                 >
-                  View Projects
-                  <ArrowRight className="h-4 w-4" />
-                </Link>
-                <Link
-                  href="/contact"
-                  className="inline-flex items-center gap-2 rounded-lg glass px-6 py-3 text-sm font-medium text-foreground transition-colors glass-hover"
-                >
-                  Get in Touch
-                </Link>
+                  <DevOpsStatus />
+                </motion.div>
+
+                <h1 className="text-3xl font-bold tracking-tight text-foreground md:text-5xl lg:text-6xl">
+                  <span className="block">Raihan Khan</span>
+                  <span className="block mt-2 gradient-text">Senior DevOps Engineer</span>
+                </h1>
+
+                <BugWalk />
+
+                <p className="max-w-2xl text-lg text-muted-foreground md:text-xl leading-relaxed">
+                  I build reliable, scalable cloud infrastructure and developer platforms. Specializing in Kubernetes,
+                  CI/CD automation, and infrastructure as code to help teams ship faster and safer.
+                </p>
+
+                <div className="flex flex-wrap gap-4 mt-4">
+                  <Link
+                    href="/projects"
+                    className="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-3 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+                  >
+                    View Projects
+                    <ArrowRight className="h-4 w-4" />
+                  </Link>
+                  <Link
+                    href="/contact"
+                    className="inline-flex items-center gap-2 rounded-lg glass px-6 py-3 text-sm font-medium text-foreground transition-colors glass-hover"
+                  >
+                    Get in Touch
+                  </Link>
+                </div>
+              </div>
+
+              <div className="hidden lg:block relative h-[500px]">
+                <SplineRobot />
               </div>
             </div>
           </motion.section>

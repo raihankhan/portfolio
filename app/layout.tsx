@@ -1,7 +1,7 @@
 import type React from "react"
 import type { Metadata, Viewport } from "next"
-import { Inter, JetBrains_Mono } from "next/font/google"
-import { Analytics } from "@vercel/analytics/next"
+import { Inter, JetBrains_Mono, Orbitron } from "next/font/google"
+
 import { ThemeProvider } from "@/components/theme/theme-provider"
 import { ThemeSwitcher } from "@/components/theme/theme-switcher"
 import { GameConsolePopover } from "@/components/game-console/game-console-popover"
@@ -11,6 +11,10 @@ const inter = Inter({ subsets: ["latin"] })
 const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
   variable: "--font-mono",
+})
+const orbitron = Orbitron({
+  subsets: ["latin"],
+  variable: "--font-orbitron",
 })
 
 export const metadata: Metadata = {
@@ -57,13 +61,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="dark" data-theme="aura-blue">
-      <body className={`${inter.className} ${jetbrainsMono.variable} font-sans antialiased`}>
+      <body className={`${inter.className} ${jetbrainsMono.variable} ${orbitron.variable} font-sans antialiased`}>
         <ThemeProvider>
           <GameConsolePopover />
           <ThemeSwitcher />
           {children}
         </ThemeProvider>
-        <Analytics />
+
       </body>
     </html>
   )
