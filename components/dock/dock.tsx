@@ -8,6 +8,8 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { Home, FolderKanban, FileText, BookOpen, Briefcase, Mail, Github, Linkedin, Twitter, Rss } from "lucide-react"
 
+import "./dock-glow.css"
+
 interface DockItemProps {
   icon: React.ReactNode
   label: string
@@ -87,7 +89,7 @@ export function Dock() {
       <motion.nav
         onMouseMove={(e) => mouseX.set(e.pageX)}
         onMouseLeave={() => mouseX.set(Number.POSITIVE_INFINITY)}
-        className="glass flex items-center gap-2 rounded-2xl p-2 shadow-2xl"
+        className="dock-glow relative glass flex items-center gap-2 rounded-2xl p-2 shadow-2xl"
       >
         {navItems.map((item) => (
           <DockItem key={item.href} {...item} mouseX={mouseX} isActive={pathname === item.href} />
