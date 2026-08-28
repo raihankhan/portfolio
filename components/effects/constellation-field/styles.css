@@ -1,0 +1,48 @@
+.constellation-field-shell {
+  position: fixed;
+  inset: 0;
+  z-index: -10;
+  pointer-events: none;
+  overflow: hidden;
+  contain: strict;
+}
+
+.constellation-field-base {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center, #0e1222 0%, #070914 100%);
+}
+
+.constellation-field-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.constellation-field-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(14, 18, 34, 0.4) 50%,
+    #070914 100%
+  );
+  opacity: 0.8;
+}
+
+.constellation-field-shell[data-mode="light"] .constellation-field-base {
+  background: radial-gradient(ellipse at center, #f8fafc 0%, #e2e8f0 100%);
+}
+
+.constellation-field-shell[data-mode="light"] .constellation-field-overlay {
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(248, 250, 252, 0.4) 50%,
+    #e2e8f0 100%
+  );
+  opacity: 0.6;
+}

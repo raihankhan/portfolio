@@ -3,7 +3,6 @@
 import { motion } from "framer-motion"
 import Link from "next/link"
 import { ArrowLeft, Calendar, Clock, Share2 } from "lucide-react"
-import { AnimatedBackground } from "@/components/animated-background"
 import { Dock } from "@/components/dock/dock"
 import { MarkdownRenderer } from "@/components/markdown-renderer"
 import type { BlogPost } from "@/lib/data"
@@ -21,7 +20,6 @@ export function BlogPostPageClient({ post }: { post: BlogPost }) {
 
   return (
     <>
-      <AnimatedBackground />
       <Dock />
 
       <main className="min-h-screen px-6 pb-32 pt-20 md:px-12 lg:px-24">

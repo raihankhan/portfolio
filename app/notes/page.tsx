@@ -1,7 +1,6 @@
 "use client"
 
 import { useState } from "react"
-import { AnimatedBackground } from "@/components/animated-background"
 import { Dock } from "@/components/dock/dock"
 import { SectionHeader } from "@/components/section-header"
 import { NoteCard } from "@/components/note-card"
@@ -30,7 +29,6 @@ export default function NotesPage() {
 
   return (
     <>
-      <AnimatedBackground />
       <Dock />
 
       <main className="min-h-screen px-6 pb-32 pt-20 md:px-12 lg:px-24">

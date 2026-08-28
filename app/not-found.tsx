@@ -2,14 +2,12 @@
 
 import { motion } from "framer-motion"
 import Link from "next/link"
-import { AnimatedBackground } from "@/components/animated-background"
 import { Dock } from "@/components/dock/dock"
 import { Home, ArrowLeft } from "lucide-react"
 
 export default function NotFound() {
   return (
     <>
-      <AnimatedBackground />
       <Dock />
 
       <main className="min-h-screen flex items-center justify-center px-6 pb-32 pt-20 md:px-12 lg:px-24">
