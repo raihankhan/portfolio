@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { motion, useMotionValue, useReducedMotion, useSpring, useTransform } from "framer-motion"
+import { motion, useMotionValue, useSpring, useTransform } from "framer-motion"
 import { useEffect, useRef, useState } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
@@ -19,8 +19,12 @@ interface DockItemProps {
   isActive?: boolean
   /** Index of this item inside the dock; used to stagger the entrance. */
   index: number
-  /** Whether the OS has reduced-motion turned on. */
-  reduceMotion: boolean
+  /**
+   * Whether animations should run. `null` during SSR + first paint (to keep
+   * SSR markup identical to first client paint and avoid hydration mismatch),
+   * `true` once we know the user prefers reduced motion, `false` otherwise.
+   */
+  reduceMotion: boolean | null
 }
 
 function DockItem({ icon, label, href, isExternal, mouseX, isActive, index, reduceMotion }: DockItemProps) {
@@ -45,21 +49,27 @@ function DockItem({ icon, label, href, isExternal, mouseX, isActive, index, redu
     prevActiveRef.current = isActive
   }, [isActive])
 
+  // Render identical DOM on server and first client paint (reduceMotion === null),
+  // then take over on the next paint. This avoids hydration mismatch from
+  // Framer's media-query state flipping between renders.
+  const animateMotion = reduceMotion !== null
+  const initialOffset = animateMotion && !reduceMotion ? { y: 18, opacity: 0 } : false
+  const whileTap = animateMotion && !reduceMotion ? { scale: 0.94 } : undefined
+  const whileHover = animateMotion && !reduceMotion ? { y: -2 } : undefined
+
   const content = (
     <motion.div
       ref={ref}
       style={{ width }}
-      // Stagger entrance: 35ms per item, 220ms travel, settled by ~700ms after mount.
-      // Cubic-bezier(0.16, 1, 0.3, 1) is the project's authored deceleration.
-      initial={reduceMotion ? false : { y: 18, opacity: 0 }}
+      initial={initialOffset}
       animate={{ y: 0, opacity: 1 }}
       transition={{
-        delay: 0.18 + index * 0.035,
+        delay: animateMotion ? 0.18 + index * 0.035 : 0,
         duration: 0.42,
         ease: [0.16, 1, 0.3, 1],
       }}
-      whileTap={reduceMotion ? undefined : { scale: 0.94 }}
-      whileHover={reduceMotion ? undefined : { y: -2 }}
+      whileTap={whileTap}
+      whileHover={whileHover}
       className={`group relative flex aspect-square items-center justify-center rounded-xl glass glass-hover dock-item ${isActive ? "dock-item--active" : ""}`}
     >
       {/* Active-route indicator dot: a small theme-tinted pip that breathes on settle. */}
@@ -68,7 +78,7 @@ function DockItem({ icon, label, href, isExternal, mouseX, isActive, index, redu
           key={`pip-${pulseKey}`}
           aria-hidden
           className="dock-item__pip"
-          initial={reduceMotion ? false : { scale: 0.4, opacity: 0 }}
+          initial={animateMotion && !reduceMotion ? { scale: 0.4, opacity: 0 } : false}
           animate={{ scale: 1, opacity: 1 }}
           transition={{
             duration: 0.55,
@@ -96,11 +106,11 @@ function DockItem({ icon, label, href, isExternal, mouseX, isActive, index, redu
   return <Link href={href}>{content}</Link>
 }
 
-function DockDivider() {
+function DockDivider({ animateMotion }: { animateMotion: boolean }) {
   return (
     <motion.div
       aria-hidden
-      initial={{ scaleY: 0, opacity: 0 }}
+      initial={animateMotion ? { scaleY: 0, opacity: 0 } : false}
       animate={{ scaleY: 1, opacity: 1 }}
       transition={{ delay: 0.45, duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
       style={{ originY: 0.5 }}
@@ -112,7 +122,18 @@ function DockDivider() {
 export function Dock() {
   const mouseX = useMotionValue(Number.POSITIVE_INFINITY)
   const pathname = usePathname()
-  const reduceMotion = useReducedMotion()
+  // null = SSR + first client paint; true = reduced motion; false = animate.
+  const [reduceMotion, setReduceMotion] = useState<boolean | null>(null)
+
+  useEffect(() => {
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)")
+    const apply = () => setReduceMotion(mq.matches)
+    apply()
+    mq.addEventListener("change", apply)
+    return () => mq.removeEventListener("change", apply)
+  }, [])
+
+  const animateMotion = reduceMotion !== null
 
   const navItems = [
     { icon: <Home className="h-6 w-6" />, label: "Home", href: "/" },
@@ -130,14 +151,15 @@ export function Dock() {
     { icon: <Twitter className="h-5 w-5" />, label: "Twitter", href: "https://twitter.com", isExternal: true },
   ]
 
-  // Whole-dock container: keep the existing translate-up entrance, but tighten
-  // it (the staggered items now carry their own entrance; the shell just slides
-  // up the rack as a whole).
   return (
     <motion.div
-      initial={reduceMotion ? false : { y: 60, opacity: 0 }}
+      initial={animateMotion && !reduceMotion ? { y: 60, opacity: 0 } : false}
       animate={{ y: 0, opacity: 1 }}
-      transition={{ delay: 0.4, type: "spring", stiffness: 160, damping: 22, mass: 0.7 }}
+      transition={
+        animateMotion
+          ? { delay: 0.4, type: "spring", stiffness: 160, damping: 22, mass: 0.7 }
+          : { duration: 0 }
+      }
       className="fixed bottom-6 left-1/2 z-50 -translate-x-1/2"
     >
       <motion.nav
@@ -152,17 +174,17 @@ export function Dock() {
             mouseX={mouseX}
             isActive={pathname === item.href}
             index={i}
-            reduceMotion={!!reduceMotion}
+            reduceMotion={reduceMotion}
           />
         ))}
-        <DockDivider />
+        <DockDivider animateMotion={animateMotion} />
         {socialItems.map((item, i) => (
           <DockItem
             key={item.href}
             {...item}
             mouseX={mouseX}
             index={navItems.length + 1 + i}
-            reduceMotion={!!reduceMotion}
+            reduceMotion={reduceMotion}
           />
         ))}
       </motion.nav>
