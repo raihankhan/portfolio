@@ -1,0 +1,89 @@
+/*
+ * Dock item micro-interactions
+ *
+ * .dock-item hosts the rounded square. The icon inside lifts 1px on hover
+ * (the parent motion.div also lifts 2px via Framer Motion whileHover, so
+ * the combined motion reads as one piece), and the tooltip decelerates
+ * into place on the project's authored easing curve.
+ *
+ * .dock-item--active holds a 6px theme-tinted pip at the bottom edge so
+ * the current route is unmistakable without competing with the icon.
+ */
+
+.dock-item {
+  transition: background-color 180ms cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 180ms cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 220ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.dock-item__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 220ms cubic-bezier(0.16, 1, 0.3, 1),
+              color 180ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.dock-item:hover .dock-item__icon {
+  transform: translateY(-1px);
+}
+
+.dock-item__tooltip {
+  /* Override the project's global 150ms transition so tooltips decelerate
+     into place instead of snapping. The chip itself still respects hover
+     via the standard :hover state on .dock-item. */
+  transition: opacity 220ms cubic-bezier(0.16, 1, 0.3, 1),
+              transform 220ms cubic-bezier(0.16, 1, 0.3, 1),
+              background-color 180ms cubic-bezier(0.16, 1, 0.3, 1);
+  transform: translate(-50%, 4px) scale(0.96);
+}
+
+.dock-item:hover .dock-item__tooltip,
+.dock-item:focus-within .dock-item__tooltip {
+  opacity: 1;
+  transform: translate(-50%, 0) scale(1);
+}
+
+/* Active route indicator pip — sits at the bottom edge, theme-tinted. */
+.dock-item__pip {
+  position: absolute;
+  left: 50%;
+  bottom: -3px;
+  width: 6px;
+  height: 6px;
+  border-radius: 9999px;
+  background: var(--theme-gradient-1, #22d3ee);
+  box-shadow:
+    0 0 8px color-mix(in oklch, var(--theme-gradient-1, #22d3ee) 70%, transparent),
+    0 0 14px color-mix(in oklch, var(--theme-gradient-2, #3b82f6) 50%, transparent);
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.dock-item--active {
+  background-color: color-mix(in oklch, var(--theme-gradient-1, #22d3ee) 18%, transparent);
+  border-color: color-mix(in oklch, var(--theme-gradient-1, #22d3ee) 45%, transparent);
+}
+
+.dock-item--active .dock-item__icon {
+  color: var(--foreground);
+}
+
+/*
+ * Respect the project's reduced-motion contract:
+ *   - Hover lift is dropped (Framer handles this via useReducedMotion).
+ *   - The pip is still visible (state indicator, not motion).
+ *   - Tooltip still works (a11y, not motion).
+ */
+
+@media (prefers-reduced-motion: reduce) {
+  .dock-item,
+  .dock-item__icon,
+  .dock-item__tooltip {
+    transition: none;
+  }
+
+  .dock-item:hover .dock-item__icon {
+    transform: none;
+  }
+}
