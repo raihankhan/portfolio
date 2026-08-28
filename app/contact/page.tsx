@@ -1,7 +1,6 @@
 "use client"
 
 import { motion } from "framer-motion"
-import { AnimatedBackground } from "@/components/animated-background"
 import { Dock } from "@/components/dock/dock"
 import { SectionHeader } from "@/components/section-header"
 import { ContactForm } from "@/components/contact-form"
@@ -35,7 +34,6 @@ const socialLinks = [
 export default function ContactPage() {
   return (
     <>
-      <AnimatedBackground />
       <Dock />
 
       <main className="min-h-screen px-6 pb-32 pt-20 md:px-12 lg:px-24">

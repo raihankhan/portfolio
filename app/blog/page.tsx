@@ -1,7 +1,6 @@
 "use client"
 
 import { useState } from "react"
-import { AnimatedBackground } from "@/components/animated-background"
 import { Dock } from "@/components/dock/dock"
 import { SectionHeader } from "@/components/section-header"
 import { BlogCard } from "@/components/blog-card"
@@ -26,7 +25,6 @@ export default function BlogPage() {
 
   return (
     <>
-      <AnimatedBackground />
       <Dock />
 
       <main className="min-h-screen px-6 pb-32 pt-20 md:px-12 lg:px-24">

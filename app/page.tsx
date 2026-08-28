@@ -2,7 +2,6 @@
 
 import { motion } from "framer-motion"
 import Link from "next/link"
-import { AnimatedBackground } from "@/components/animated-background"
 import { Dock } from "@/components/dock/dock"
 import { DevOpsStatus } from "@/components/devops-status"
 import { BugWalk } from "@/components/bug-walk"
@@ -38,7 +37,6 @@ const item = {
 export default function HomePage() {
   return (
     <>
-      <AnimatedBackground />
       <Dock />
 
       <main className="min-h-screen px-6 pb-32 pt-20 md:px-12 lg:px-24">

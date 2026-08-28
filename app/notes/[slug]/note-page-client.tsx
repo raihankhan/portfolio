@@ -3,7 +3,6 @@
 import { motion } from "framer-motion"
 import Link from "next/link"
 import { ArrowLeft, Calendar, BookOpen } from "lucide-react"
-import { AnimatedBackground } from "@/components/animated-background"
 import { Dock } from "@/components/dock/dock"
 import { MarkdownRenderer } from "@/components/markdown-renderer"
 import type { Note } from "@/lib/data"
@@ -11,7 +10,6 @@ import type { Note } from "@/lib/data"
 export function NotePageClient({ note }: { note: Note }) {
   return (
     <>
-      <AnimatedBackground />
       <Dock />
 
       <main className="min-h-screen px-6 pb-32 pt-20 md:px-12 lg:px-24">

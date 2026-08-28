@@ -4,7 +4,6 @@ import { motion } from "framer-motion"
 import Link from "next/link"
 import Image from "next/image"
 import { ArrowLeft, ExternalLink, Github, FileText, CheckCircle2, AlertCircle } from "lucide-react"
-import { AnimatedBackground } from "@/components/animated-background"
 import { Dock } from "@/components/dock/dock"
 import { TechBadge } from "@/components/tech-badge"
 import type { Project } from "@/lib/data"
@@ -16,7 +15,6 @@ interface ProjectPageClientProps {
 export function ProjectPageClient({ project }: ProjectPageClientProps) {
   return (
     <>
-      <AnimatedBackground />
       <Dock />
 
       <main className="min-h-screen px-6 pb-32 pt-20 md:px-12 lg:px-24">
