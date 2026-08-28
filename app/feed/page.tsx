@@ -3,13 +3,11 @@
 import { motion } from "framer-motion"
 import { feedPosts } from "@/lib/data"
 import { FeedCard } from "@/components/feed/feed-card"
-import { AnimatedBackground } from "@/components/animated-background"
 import { Dock } from "@/components/dock/dock"
 
 export default function FeedPage() {
     return (
         <>
-            <AnimatedBackground />
             <Dock />
 
             <main className="min-h-screen px-6 pb-32 pt-24 md:px-12 lg:px-24">

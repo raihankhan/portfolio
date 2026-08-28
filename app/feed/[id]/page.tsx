@@ -1,6 +1,5 @@
 import { feedPosts } from "@/lib/data"
 import { FeedCard } from "@/components/feed/feed-card"
-import { AnimatedBackground } from "@/components/animated-background"
 import { Dock } from "@/components/dock/dock"
 import { notFound } from "next/navigation"
 
@@ -20,7 +19,6 @@ export default async function FeedPostPage({ params }: { params: Promise<{ id: s
 
     return (
         <>
-            <AnimatedBackground />
             <Dock />
 
             <main className="min-h-screen px-6 pb-32 pt-24 md:px-12 lg:px-24">

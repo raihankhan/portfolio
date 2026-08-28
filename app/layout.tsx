@@ -5,6 +5,8 @@ import { Inter, JetBrains_Mono, Orbitron } from "next/font/google"
 import { ThemeProvider } from "@/components/theme/theme-provider"
 import { ThemeSwitcher } from "@/components/theme/theme-switcher"
 import { GameConsolePopover } from "@/components/game-console/game-console-popover"
+import { ConstellationField } from "@/components/effects/constellation-field/ConstellationField"
+import "@/components/effects/constellation-field/styles.css"
 import "./globals.css"
 
 const inter = Inter({ subsets: ["latin"] })
@@ -63,6 +65,15 @@ export default function RootLayout({
     <html lang="en" className="dark" data-theme="aura-blue">
       <body className={`${inter.className} ${jetbrainsMono.variable} ${orbitron.variable} font-sans antialiased`}>
         <ThemeProvider>
+          <ConstellationField
+            mode="dark"
+            speed={1}
+            size={1}
+            strokeWidth={0.8}
+            length={1}
+            density={1}
+            opacity={0.85}
+          />
           <GameConsolePopover />
           <ThemeSwitcher />
           {children}
