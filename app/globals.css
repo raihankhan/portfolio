@@ -194,3 +194,5 @@
 .animated-underline:hover::after {
   width: 100%;
 }
+
+/* (no hero component styles — hero uses native animation primitives only) */
