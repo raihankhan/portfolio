@@ -1,10 +1,10 @@
 "use client"
 
-import { motion } from "framer-motion"
+import { motion, useReducedMotion } from "framer-motion"
 import Link from "next/link"
 import { Dock } from "@/components/dock/dock"
 import { DevOpsStatus } from "@/components/devops-status"
-import { BugWalk } from "@/components/bug-walk"
+import { Clause } from "@/components/text-wipe"
 import dynamic from "next/dynamic"
 import { ArrowRight, Terminal, Cloud, GitBranch, Server } from "lucide-react"
 
@@ -34,7 +34,50 @@ const item = {
   show: { opacity: 1, y: 0 },
 }
 
+// TechToken — operative tech terms inside the hero description get a
+// 1px gradient underline that draws in after the surrounding clause
+// has settled. Same easing as the wipe primitives above.
+const tokenUnderline = {
+    hidden: { scaleX: 0 },
+    show: { scaleX: 1 },
+}
+
+const tokenUnderlineTransition = (delay: number) => ({
+    duration: 0.42,
+    delay,
+    ease: [0.16, 1, 0.3, 1] as const,
+})
+
+function TechToken({ children, delay, skip }: { children: React.ReactNode; delay: number; skip?: boolean }) {
+    if (skip) {
+        return (
+            <span className="relative inline-block whitespace-nowrap font-medium text-foreground/90">
+                <span>{children}</span>
+                <span
+                    aria-hidden="true"
+                    className="pointer-events-none absolute inset-x-0 bottom-[-2px] h-px bg-gradient-to-r from-primary/0 via-primary to-secondary/0"
+                />
+            </span>
+        )
+    }
+    return (
+        <span className="relative inline-block whitespace-nowrap font-medium text-foreground/90">
+            <span>{children}</span>
+            <motion.span
+                aria-hidden="true"
+                initial="hidden"
+                animate="show"
+                variants={tokenUnderline}
+                transition={tokenUnderlineTransition(delay)}
+                className="pointer-events-none absolute inset-x-0 bottom-[-2px] h-px origin-left bg-gradient-to-r from-primary/0 via-primary to-secondary/0"
+            />
+        </span>
+    )
+}
+
 export default function HomePage() {
+  const reduceMotion = useReducedMotion()
+
   return (
     <>
       <Dock />
@@ -62,11 +105,21 @@ export default function HomePage() {
                   <span className="block mt-2 gradient-text">Senior DevOps Engineer</span>
                 </h1>
 
-                <BugWalk />
-
+                {/* Description — three sequential clause-wipes with token
+                    underlines drawn after each clause settles. */}
                 <p className="max-w-2xl text-lg text-muted-foreground md:text-xl leading-relaxed">
-                  I build reliable, scalable cloud infrastructure and developer platforms. Specializing in Kubernetes,
-                  CI/CD automation, and infrastructure as code to help teams ship faster and safer.
+                  <Clause delay={0.35} skip={reduceMotion ?? false} className="inline">
+                    I build reliable, scalable cloud infrastructure and developer platforms.{" "}
+                  </Clause>
+                  <Clause delay={0.55} skip={reduceMotion ?? false} className="inline">
+                    Specializing in{" "}
+                    <TechToken delay={1.0} skip={reduceMotion ?? false}>Kubernetes</TechToken>,{" "}
+                    <TechToken delay={1.12} skip={reduceMotion ?? false}>CI/CD</TechToken> automation, and{" "}
+                    <TechToken delay={1.24} skip={reduceMotion ?? false}>infrastructure as code</TechToken>{" "}
+                  </Clause>
+                  <Clause delay={0.85} skip={reduceMotion ?? false} className="inline">
+                    to help teams ship faster and safer.
+                  </Clause>
                 </p>
 
                 <div className="flex flex-wrap gap-4 mt-4">
