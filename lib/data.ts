@@ -594,3 +594,27 @@ export const experiences: Experience[] = [
     technologies: ["Linux", "VMware", "AWS", "Ansible", "Nagios", "MySQL", "Redis"],
   },
 ]
+
+export interface Skill {
+  name: string
+  category?: string
+  level?: number
+}
+
+export const skills: Skill[] = [
+  { name: "Kubernetes", category: "Orchestration", level: 95 },
+  { name: "AWS", category: "Cloud", level: 92 },
+  { name: "Terraform", category: "IaC", level: 90 },
+  { name: "Docker", category: "Containers", level: 93 },
+  { name: "GitOps", category: "Delivery", level: 88 },
+  { name: "ArgoCD", category: "Delivery", level: 87 },
+  { name: "Helm", category: "Packaging", level: 85 },
+  { name: "Prometheus", category: "Observability", level: 86 },
+  { name: "Grafana", category: "Observability", level: 84 },
+  { name: "Linux", category: "Systems", level: 95 },
+  { name: "Python", category: "Languages", level: 82 },
+  { name: "Go", category: "Languages", level: 78 },
+  { name: "GitHub Actions", category: "CI/CD", level: 88 },
+  { name: "PostgreSQL", category: "Databases", level: 80 },
+  { name: "Redis", category: "Databases", level: 75 },
+]
