@@ -1,0 +1,73 @@
+name: RFC
+description: Propose a design decision or significant change
+title: "[RFC]: "
+labels: ["rfc", "status: needs-review", "track: portfolio"]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this for **significant design decisions** that need review before implementation.
+        Examples: changing the architecture, picking a major dependency, breaking changes.
+        Smaller changes should use the Feature template instead.
+
+  - type: input
+    id: title
+    attributes:
+      label: RFC title
+      description: Short summary of the decision.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: status
+    attributes:
+      label: Status
+      options:
+        - Draft (early ideation)
+        - Proposed (ready for review)
+        - Accepted (approved, ready to implement)
+        - Rejected (will not implement)
+        - Superseded (replaced by another RFC)
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      description: What is the situation that requires this decision? What constraints exist?
+    validations:
+      required: true
+
+  - type: textarea
+    id: decision
+    attributes:
+      label: Proposed decision
+      description: What are you proposing we do?
+    validations:
+      required: true
+
+  - type: textarea
+    id: consequences
+    attributes:
+      label: Consequences
+      description: What becomes easier? What becomes harder? What tradeoffs are we accepting?
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: What else did you consider? Why is this option better?
+    validations:
+      required: true
+
+  - type: textarea
+    id: open_questions
+    attributes:
+      label: Open questions
+      description: What does the team need to figure out before this can land?
+    validations:
+      required: false

@@ -7,28 +7,28 @@ import { cn } from "@/lib/utils"
 
 const states = [
     {
-        text: "System Online",
-        icon: Activity,
+        text: "Implementing Production grade kubernetes operator",
+        icon: Terminal,
         color: "text-emerald-500",
         bg: "bg-emerald-500/10",
     },
     {
-        text: "Ready to Deploy",
-        icon: CheckCircle2,
+        text: "Building Agent First Developer Platforms",
+        icon: Activity,
         color: "text-blue-500",
         bg: "bg-blue-500/10",
     },
     {
-        text: "Listening for Opportunities",
+        text: "Managing service infra and deployment lifecycle",
+        icon: CheckCircle2,
+        color: "text-purple-500",
+        bg: "bg-purple-500/10",
+    },
+    {
+        text: "Building GitOps based Internal Developer Platform",
         icon: Radio,
         color: "text-amber-500",
         bg: "bg-amber-500/10",
-    },
-    {
-        text: "Initializing...",
-        icon: Terminal,
-        color: "text-purple-500",
-        bg: "bg-purple-500/10",
     },
 ]
 
@@ -59,7 +59,7 @@ export function DevOpsStatus() {
                     <div className={cn("p-1 rounded-full", states[currentIndex].bg)}>
                         <CurrentIcon className={cn("w-3 h-3", states[currentIndex].color)} />
                     </div>
-                    <span className="text-muted-foreground font-mono text-xs md:text-sm">
+                    <span className={cn("font-mono text-xs md:text-sm font-medium", states[currentIndex].color)}>
                         {states[currentIndex].text}
                         <motion.span
                             animate={{ opacity: [0, 1, 0] }}

@@ -1,0 +1,44 @@
+# Configuration for probot-stale or similar stale-issue bot
+# https://github.com/probot/stale
+
+# Number of days of inactivity before marking as stale
+daysUntilStale: 60
+
+# Number of days of inactivity before closing stale issues
+daysUntilClose: 14
+
+# Issues with these labels are exempt from stalebot
+exemptLabels:
+  - epic
+  - security
+  - 'priority: p0'
+  - 'priority: p1'
+  - 'status: blocked'
+  - 'status: in-progress'
+  - 'interview: fde'
+  - 'showcase'
+  - 'demo'
+  - pin
+
+# Use 'exemptLabels' (above) to keep issues open indefinitely
+# Use 'closeComment' (below) to provide a custom close message
+
+# Comment to post when marking as stale
+staleComment: >
+  👋 This issue has been automatically marked as stale because it has had no activity
+  for 60 days. It will be closed in 14 days if no further activity occurs.
+
+  If this is still relevant:
+  - Please add a comment with current status or context
+  - Or re-assign / update the milestone
+  - Or remove the stale label if you're actively working on it
+
+  See [CONTRIBUTING.md](../../blob/master/CONTRIBUTING.md) for guidance.
+
+# Comment to post when closing
+closeComment: >
+  🔒 This stale issue has been closed. Feel free to reopen if it becomes relevant
+  again. Thanks for understanding.
+
+# Limit the number of actions per hour (avoid bot loops)
+limitPerRun: 30

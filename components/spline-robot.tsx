@@ -4,6 +4,12 @@ import Spline from "@splinetool/react-spline"
 import { motion, useReducedMotion } from "framer-motion"
 import { useState, useEffect } from "react"
 import { Clause } from "@/components/text-wipe"
+import { silenceSplineStateNoise } from "@/lib/spline-console-filter"
+
+// The published scene logs a recurring "Missing property" error on every
+// animation loop. Installed here, at import time, so it lands before the
+// scene starts animating. See the module for the full diagnosis.
+silenceSplineStateNoise()
 
 export function SplineRobot() {
     const [isMounted, setIsMounted] = useState(false)

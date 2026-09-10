@@ -1,0 +1,91 @@
+name: Bug Report
+description: Report something broken
+title: "[Bug]: "
+labels: ["bug", "status: needs-review"]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to file a bug! Please fill in the sections below.
+        Use the **For hiring managers** template if you're sharing this as an interview reference.
+
+  - type: input
+    id: summary
+    attributes:
+      label: One-line summary
+      description: A clear, concise summary of the bug.
+      placeholder: e.g., "Search dialog doesn't open with Cmd+K on Firefox"
+    validations:
+      required: true
+
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      description: How can we reproduce this?
+      placeholder: |
+        1. Go to '...'
+        2. Click on '....'
+        3. Scroll down to '....'
+        4. See error
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      description: What did you expect to happen?
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+      description: What actually happened?
+    validations:
+      required: true
+
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      description: |
+        Browser, OS, device, screen size, etc.
+      placeholder: "Firefox 121, macOS 14.2, 1440x900"
+    validations:
+      required: false
+
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Screenshots / videos
+      description: Drag in screenshots or videos if relevant.
+    validations:
+      required: false
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      description: How bad is this?
+      options:
+        - Low (cosmetic / minor)
+        - Medium (feature broken, workaround exists)
+        - High (major feature unusable)
+        - Critical (blocks core use)
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Pre-flight
+      description: Please confirm before submitting.
+      options:
+        - label: I've searched open issues to avoid duplicates
+          required: true
+        - label: I've reproduced this on the latest `master`
+          required: true
