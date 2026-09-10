@@ -1,0 +1,214 @@
+# =============================================================================
+# Milestone Sync — keep milestone progress and metadata in sync
+# =============================================================================
+# Triggered on:
+#   - issue open/close/reopen/labeled/unlabeled
+#   - manual dispatch
+#
+# Responsibilities:
+#   - On every change to issues belonging to a milestone, post a single
+#     rolling "progress summary" comment on the milestone (via the GitHub
+#     Discussions API as a Q&A discussion tied to that milestone, or as a
+#     GitHub Issue if Discussions aren't enabled).
+#   - Ensure milestone "due_on" date is never in the past; log warnings.
+#   - Auto-archive closed issues in completed milestones (optional).
+# =============================================================================
+
+name: Milestone Sync
+
+on:
+  issues:
+    types:
+      - opened
+      - closed
+      - reopened
+      - labeled
+      - unlabeled
+      - assigned
+      - edited
+  pull_request:
+    types:
+      - closed
+      - reopened
+  workflow_dispatch:
+    inputs:
+      milestone_number:
+        description: "Optional: re-sync a specific milestone number"
+        required: false
+
+concurrency:
+  group: milestone-sync-${{ github.event.issue.number || github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: false
+
+permissions:
+  issues: write
+  pull-requests: read
+
+jobs:
+  update-progress:
+    name: "Update milestone progress"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Resolve target milestone number
+        id: resolve
+        uses: actions/github-script@v7
+        with:
+          script: |
+            let milestoneNumber = null;
+
+            // From issue
+            if (context.payload.issue && context.payload.issue.milestone) {
+              milestoneNumber = context.payload.issue.milestone.number;
+            }
+            // From PR
+            else if (context.payload.pull_request && context.payload.pull_request.milestone) {
+              milestoneNumber = context.payload.pull_request.milestone.number;
+            }
+            // From manual input
+            if (!milestoneNumber && context.payload.inputs && context.payload.inputs.milestone_number) {
+              milestoneNumber = Number(context.payload.inputs.milestone_number);
+            }
+
+            if (!milestoneNumber) {
+              core.info('No milestone associated with this event.');
+              return;
+            }
+            core.setOutput('milestone_number', String(milestoneNumber));
+
+      - name: Recompute and post milestone progress
+        if: steps.resolve.outputs.milestone_number != ''
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const milestoneNumber = Number('${{ steps.resolve.outputs.milestone_number }}');
+
+            // Get the milestone
+            const { data: milestone } = await github.rest.issues.getMilestone({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              milestone_number: milestoneNumber,
+            });
+
+            if (!milestone) {
+              core.warning(`Milestone #${milestoneNumber} not found.`);
+              return;
+            }
+
+            // Count open and closed issues
+            const openIssues = await github.paginate(github.rest.issues.listForRepo, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              milestone: milestoneNumber,
+              per_page: 100,
+            });
+            const closedIssues = await github.paginate(github.rest.issues.listForRepo, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'closed',
+              milestone: milestoneNumber,
+              per_page: 100,
+            });
+
+            const total = openIssues.length + closedIssues.length;
+            const closed = closedIssues.length;
+            const pct = total === 0 ? 0 : Math.round((closed / total) * 100);
+
+            // Progress bar (10 chars)
+            const filled = Math.round((pct / 100) * 10);
+            const bar = '█'.repeat(filled) + '░'.repeat(10 - filled);
+
+            const due = milestone.due_on
+              ? new Date(milestone.due_on).toISOString().slice(0, 10)
+              : 'no due date';
+
+            // Check for stale due date
+            const now = new Date();
+            const dueDate = milestone.due_on ? new Date(milestone.due_on) : null;
+            let dueStatus = '';
+            if (dueDate && dueDate < now && pct < 100) {
+              dueStatus = ' ⚠️ **OVERDUE**';
+            } else if (dueDate) {
+              const days = Math.ceil((dueDate - now) / (1000 * 60 * 60 * 24));
+              if (days <= 14 && pct < 100) {
+                dueStatus = ` ⏰ due in ${days} day${days === 1 ? '' : 's'}`;
+              }
+            }
+
+            const summary = '## 📊 Milestone Progress\n\n' +
+              '**Milestone:** `' + milestone.title + '`\n' +
+              '**Due:** ' + due + dueStatus + '\n' +
+              '**Progress:** ' + bar + ' **' + pct + '%** (' + closed + '/' + total + ' issues closed)\n\n' +
+              '_Last updated: ' + new Date().toISOString() + '_\n\n' +
+              'This comment is auto-updated by the `milestone-sync` workflow.';
+
+            // Find the existing progress comment on the milestone
+            // (we post it as an issue linked to a hidden tracking issue,
+            //  OR as a discussion. For simplicity, we use a tracking issue
+            //  titled exactly: `progress-tracker/<milestone-number>`)
+            const trackerTitle = `progress-tracker/${milestoneNumber}`;
+            let tracker;
+            try {
+              const found = await github.rest.issues.listForRepo({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                state: 'all',
+                labels: 'milestone-tracker',
+                per_page: 100,
+              });
+              tracker = found.data.find(i =>
+                i.title === trackerTitle ||
+                (i.body && i.body.includes(trackerTitle))
+              );
+            } catch (e) {
+              core.warning(`Search failed: ${e.message}`);
+            }
+
+            if (tracker) {
+              // Update the issue body
+              await github.rest.issues.update({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: tracker.number,
+                body: summary,
+                state: pct === 100 ? 'closed' : 'open',
+              });
+              // Edit the most recent comment from this bot if it exists,
+              // otherwise create one
+              const comments = await github.rest.issues.listComments({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: tracker.number,
+                per_page: 20,
+              });
+              const botComment = comments.data.find(c =>
+                c.user.login === 'github-actions[bot]' &&
+                c.body.startsWith('## 📊 Milestone Progress')
+              );
+              if (botComment) {
+                await github.rest.issues.updateComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  comment_id: botComment.id,
+                  body: summary,
+                });
+              } else {
+                await github.rest.issues.createComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: tracker.number,
+                  body: summary,
+                });
+              }
+              core.info(`Updated tracker issue #${tracker.number} for milestone ${milestoneNumber}`);
+            } else {
+              // Create a new tracker issue
+              const created = await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: trackerTitle,
+                body: summary,
+                labels: ['milestone-tracker'],
+              });
+              core.info(`Created tracker issue #${created.data.number} for milestone ${milestoneNumber}`);
+            }

@@ -1,0 +1,51 @@
+# CODEOWNERS — Raihan's portfolio
+# Each line is a file pattern followed by one or more owners.
+# Order matters: later patterns override earlier ones.
+# https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Default owners for everything
+*                       @raihankhan
+
+# Application code
+/app/                   @raihankhan
+/components/            @raihankhan
+/lib/                   @raihankhan
+/hooks/                 @raihankhan
+
+# Content (blog, notes, ADRs)
+/content/               @raihankhan
+/app/blog/              @raihankhan
+/app/notes/             @raihankhan
+
+# Infrastructure as code
+/infra/                 @raihankhan
+/terraform/             @raihankhan
+
+# CI/CD workflows and repo governance
+/.github/               @raihankhan
+
+# Styling and design system
+/styles/                @raihankhan
+/tailwind.config.*      @raihankhan
+/app/globals.css        @raihankhan
+
+# Public assets
+/public/                @raihankhan
+
+# Configuration
+/package.json           @raihankhan
+/pnpm-lock.yaml         @raihankhan
+/next.config.mjs        @raihankhan
+/tsconfig.json          @raihankhan
+
+# Tests
+/__tests__/             @raihankhan
+/tests/                 @raihankhan
+/*.test.ts              @raihankhan
+/*.test.tsx             @raihankhan
+
+# Docs
+/CONTRIBUTING.md        @raihankhan
+/README.md              @raihankhan
+/SECURITY.md            @raihankhan
+/docs/                  @raihankhan

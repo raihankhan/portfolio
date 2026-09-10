@@ -1,0 +1,67 @@
+name: Content Submission
+description: Suggest a blog post, note, or knowledge base entry
+title: "[Content]: "
+labels: ["area: content", "track: knowledge-sharing", "status: needs-review"]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this to suggest new blog posts, notes, ADRs, or other knowledge base content.
+
+  - type: dropdown
+    id: type
+    attributes:
+      label: Content type
+      options:
+        - Blog post (long-form, 1500+ words)
+        - Note (short reference)
+        - ADR (architecture decision record)
+        - Case study
+        - Talk abstract
+        - Tutorial / how-to
+    validations:
+      required: true
+
+  - type: input
+    id: title
+    attributes:
+      label: Working title
+    validations:
+      required: true
+
+  - type: textarea
+    id: abstract
+    attributes:
+      label: Abstract / outline
+      description: 2-4 sentences on the angle + a bullet outline.
+    validations:
+      required: true
+
+  - type: textarea
+    id: audience
+    attributes:
+      label: Target audience
+      description: Who is this for? What do they walk away knowing?
+    validations:
+      required: false
+
+  - type: input
+    id: tags
+    attributes:
+      label: Tags
+      description: Comma-separated list of relevant tags (kubernetes, terraform, mcp, etc.)
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: sources
+    attributes:
+      label: Sources / references
+      description: Check what you have ready.
+      options:
+        - label: I have notes / draft
+        - label: I have diagrams planned
+        - label: I have references / further reading list
+        - label: I can write it myself
+        - label: I need a collaborator
